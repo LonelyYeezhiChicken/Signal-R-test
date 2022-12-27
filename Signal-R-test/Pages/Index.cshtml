@@ -5,6 +5,45 @@
 }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+     <form>
+         <input type="text" id="user" />
+        <input  type="text" id="msgInp"/>
+        <input class="btn btn-warning" type="button" id="msgBtn" value="送出" onclick="sendMsg()"/>
+    </form>
+    <p id="getMsg"></p>
 </div>
+
+@* 用CDN的方式載入signalr.js *@
+<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/3.1.7/signalr.js"></script>
+<script>
+
+//設定SignalR的連線資訊
+var connection = new signalR.HubConnectionBuilder().withUrl("/msgHub").build();
+
+function sendMsg(){
+    let user = document.getElementById("user").value;
+    let msg = document.getElementById("msgInp").value;
+     connection.invoke("SendMessage", user, msg).catch(function (err) {
+        return console.error(err.toString());
+    });
+}
+
+
+//開啟ReceiveMessage的通道，Server只要呼叫ReceiveMessage，這邊就會接著執行function
+connection.on("ReceiveMessage", function (user, message) {
+    //alert(`connect ${user} ${message}`)
+
+    document.getElementById("getMsg").innerHTML = "";
+    document.getElementById("getMsg").innerHTML = `${user} : ${message}`;
+});
+
+//與Server建立連線
+connection.start().then(function () {
+    //呼叫Hub中的SendMessage方法，並傳入參數（參數數量要相等，不然會報錯）
+    connection.invoke("SendMessage", 'hi', 'Hi').catch(function (err) {
+        return console.error(err.toString());
+    });
+}).catch(function (err) {
+    return console.error(err.toString());
+});
+</script>
