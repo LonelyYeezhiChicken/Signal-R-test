@@ -10,7 +10,9 @@
         <input  type="text" id="msgInp"/>
         <input class="btn btn-warning" type="button" id="msgBtn" value="送出" onclick="sendMsg()"/>
     </form>
-    <p id="getMsg"></p>
+    <div class="content" id="getMsg">
+
+    </div>
 </div>
 
 @* 用CDN的方式載入signalr.js *@
@@ -31,10 +33,11 @@ function sendMsg(){
 
 //開啟ReceiveMessage的通道，Server只要呼叫ReceiveMessage，這邊就會接著執行function
 connection.on("ReceiveMessage", function (user, message) {
-    //alert(`connect ${user} ${message}`)
+    let row = document.createElement('div');
+        row.classList.add('row');
+        row.innerHTML = `${user} : ${message}`;
 
-    document.getElementById("getMsg").innerHTML = "";
-    document.getElementById("getMsg").innerHTML = `${user} : ${message}`;
+    document.getElementById('getMsg').appendChild(row);
 });
 
 //與Server建立連線
